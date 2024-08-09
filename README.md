@@ -53,7 +53,7 @@ These use cases demonstrate the flexibility and power of AIPE in automating comp
 2. Install the required dependencies:
 
    ```
-   pip install -r requirements.txt
+   pip install -r app/requirements.txt
    ```
 
 3. Set up environment variables for API keys (if needed):
@@ -109,7 +109,7 @@ These use cases demonstrate the flexibility and power of AIPE in automating comp
 
 2. Run the pipeline:
    ```
-   python main.py path/to/your/config.yaml
+   python app/main.py config/config.yaml
    ```
 
 ## 🧩 Pipeline Steps
@@ -131,7 +131,7 @@ The project includes Dockerfile for easy containerization. To build and run usin
 
 ```
 docker build -t AIPE .
-docker run -it --env-file .env AIPE
+docker run -it --gpus all --env-file .env AIPE
 ```
 
 ## 🤝 Contributing
