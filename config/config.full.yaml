@@ -1,0 +1,63 @@
+pipeline:
+  context:
+    topic: "artificial intelligence"
+    num_results: 5
+    base_url: "https://example.com"
+    webhook_url: "https://webhook.site/your-unique-url"
+
+  steps:
+    - name: "web_search"
+      type: "WebSearch"
+      query: "latest developments in {topic}"
+      search_type: "duckduckgo"
+      num_results: "{num_results}"
+
+    # - name: "scrape_data"
+    #   type: "WebScrape"
+    #   urls:
+    #     - "{base_url}/ai-news"
+    #     - "{base_url}/tech-innovations"
+
+    - name: "load_nlp_model"
+      type: "RunInference"
+      source: "ollama"
+      model_name: "llama2"
+
+    - name: "summarize_findings"
+      type: "RunInference"
+      prompt: "Summarize the latest developments in {topic} based on the following information: {web_search}"
+
+    - name: "text_to_speech"
+      type: "TextToSpeech"
+      text: "{summarize_findings}"
+      data_path: "output/summary_audio.wav"
+
+    # - name: "speech_to_text"
+    #   type: "SpeechToText"
+    #   audio_file: "output/summary_audio.wav"
+    #   method: "offline"
+
+    # - name: "load_image_model"
+    #   type: "LoadImageModel"
+    #   model_name: "runwayml/stable-diffusion-v1-5"
+
+    - name: "generate_image"
+      type: "GenerateImage"
+      prompt: "A futuristic representation of {topic} with latest developments: {summarize_findings}"
+      data_path: "output/ai_developments.png"
+      image_params:
+        num_inference_steps: 50
+        guidance_scale: 7.5
+
+    # - name: "call_webhook"
+    #   type: "CallWebhook"
+    #   url: "{webhook_url}"
+    #   method: "POST"
+    #   payload:
+    #     summary: "{summarize_findings}"
+    #     image_path: "output/ai_developments.png"
+    #     transcription: "{speech_to_text}"
+
+    - name: "final_report"
+      type: "RunInference"
+      prompt: "Create a final report on {topic} incorporating the following elements:\n1. Web search results: {web_search}\n2. Summarized findings: {summarize_findings}\n4. Generated image description: A futuristic representation of {topic}\n5. Transcription accuracy check: Compare the original summary with the transcribed text and comment on any discrepancies."

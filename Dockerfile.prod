@@ -1,0 +1,71 @@
+# Stage 1: Build environment
+FROM python:3.9-slim-buster AS builder
+
+# Set work directory
+WORKDIR /app
+
+# Install system build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+    && bash miniconda.sh -b -p /opt/conda \
+    && rm miniconda.sh
+ENV PATH="/opt/conda/bin:${PATH}"
+
+# Create a conda environment
+RUN conda create -n pipeline python=3.9 -y
+SHELL ["conda", "run", "-n", "pipeline", "/bin/bash", "-c"]
+
+# Copy only requirements, to cache them in docker layer
+COPY requirements.txt /app/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime environment
+FROM python:3.9-slim-buster AS runtime
+
+# Set work directory
+WORKDIR /app
+
+# Install runtime system dependencies
+RUN apt-get update && apt-get install -y \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy conda environment from builder
+COPY --from=builder /opt/conda /opt/conda
+ENV PATH="/opt/conda/bin:${PATH}"
+SHELL ["conda", "run", "-n", "pipeline", "/bin/bash", "-c"]
+
+# Copy application code
+COPY . /app
+
+# Install Ollama (assuming it's compatible with the base image)
+RUN curl https://ollama.ai/install.sh | sh
+
+# Create a non-root user
+RUN useradd -m appuser
+USER appuser
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/home/appuser/.local/bin:${PATH}"
+
+# Run the application
+CMD ["conda", "run", "--no-capture-output", "-n", "pipeline", "python", "main.py"]
