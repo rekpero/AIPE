@@ -41,6 +41,19 @@ AIPE (AI Pipeline Engine) is a versatile tool that can be applied to various dom
 
 These use cases demonstrate the flexibility and power of AIPE in automating complex workflows across different industries and applications. The modular nature of the pipeline allows for easy customization and expansion to suit specific needs.
 
+## 🧩 Pipeline Steps
+
+The AI Agent Pipeline Engine supports the following steps:
+
+- `WebSearch`: Search the web using DuckDuckGo or Serper API
+- `WebScrape`: Scrape content from specified URLs
+- `RunInference`: Generate text using LLM models (Ollama, OpenAI)
+- `TextToSpeech`: Convert text to speech
+- `SpeechToText`: Transcribe speech to text
+- `LoadImageModel`: Load a text-to-image model
+- `GenerateImage`: Generate images from text prompts
+- `CallWebhook`: Make external API calls
+
 ## 🛠️ Installation
 
 1. Clone the repository:
@@ -115,19 +128,6 @@ These use cases demonstrate the flexibility and power of AIPE in automating comp
 
 3. Check the output:
    The pipeline will save its outputs in the `output` folder. This includes generated files such as audio, images, and text reports as specified in your configuration.
-
-## 🧩 Pipeline Steps
-
-The AI Agent Pipeline Engine supports the following steps:
-
-- `WebSearch`: Search the web using DuckDuckGo or Serper API
-- `WebScrape`: Scrape content from specified URLs
-- `RunInference`: Generate text using LLM models (Ollama, OpenAI)
-- `TextToSpeech`: Convert text to speech
-- `SpeechToText`: Transcribe speech to text
-- `LoadImageModel`: Load a text-to-image model
-- `GenerateImage`: Generate images from text prompts
-- `CallWebhook`: Make external API calls
 
 ## 🐳 Docker Support
 
