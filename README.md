@@ -108,9 +108,13 @@ These use cases demonstrate the flexibility and power of AIPE in automating comp
    ```
 
 2. Run the pipeline:
+
    ```
    python app/main.py config/config.yaml
    ```
+
+3. Check the output:
+   The pipeline will save its outputs in the `output` folder. This includes generated files such as audio, images, and text reports as specified in your configuration.
 
 ## 🧩 Pipeline Steps
 
@@ -133,6 +137,8 @@ The project includes Dockerfile for easy containerization. To build and run usin
 docker build -t AIPE .
 docker run -it --gpus all --env-file .env AIPE
 ```
+
+The pipeline will save its outputs in the `output` folder inside the docker container. This includes generated files such as audio, images, and text reports as specified in your configuration.
 
 ## 🤝 Contributing
 
