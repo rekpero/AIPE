@@ -11,7 +11,7 @@ class Step(BaseModel):
     model_name: Optional[str] = Field(default="")
     prompt: Optional[str] = Field(default="")
     text: Optional[str] = Field(default="")
-    data_path: Optional[str] = Field(default="")
+    result_path: Optional[str] = Field(default="")
     result_path: Optional[str] = Field(default="")
     input_text: Optional[str] = Field(default="")
     method: Optional[str] = Field(default="")

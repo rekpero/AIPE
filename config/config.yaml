@@ -1,38 +1,34 @@
 pipeline:
   context:
-    topic: "artificial intelligence with crypto"
-    num_results: 5
-    model_name: "llama2"
+    topic: "Anime waifu with pigtails"
+    num_results: 10
+    model_name: "llama3.1"
 
   steps:
-    - name: "web_search"
-      type: "WebSearch"
-      query: "latest developments in {context.topic}"
-      search_type: "serper"
-      num_results: "{context.num_results}"
-
-    - name: "summarize_findings"
+    - name: "create_scenario"
       type: "RunInference"
       source: "ollama"
-      model_name: "llama2"
-      prompt: "Summarize the latest developments in {context.topic} based on the following information: {steps.web_search}"
+      model_name: "{context.model_name}"
+      prompt: "Create a hyper realistic scenario for a {context.topic} and make it small descriptive so that it can be used for stable diffusion to create an image. no more than 77 tokens and it should be in single paragraph, no use of markdown or html"
 
-    - name: "text_to_speech"
-      type: "TextToSpeech"
-      text: "{steps.summarize_findings}"
-      data_path: "/app/output/summary_audio.wav"
-
-    - name: "generate_image"
+    - name: "generate_image_sd"
       type: "GenerateImage"
-      prompt: "A futuristic representation of {context.topic}"
-      data_path: "/app/output/ai_developments.png"
+      prompt: "{steps.create_scenario}"
+      result_path: "/app/output/ai_developments_sd.png"
       image_params:
+        model_type: "stable_diffusion"
+        model_id: "runwayml/stable-diffusion-v1-5"
         num_inference_steps: 50
         guidance_scale: 7.5
 
-    - name: "final_report"
-      type: "RunInference"
-      source: "ollama"
-      model_name: "llama2"
-      prompt: "Create a final report on {context.topic} incorporating the following elements:\n1. Web search results: {steps.web_search}\n2. Summarized findings: {steps.summarize_findings}\n4. Generated image description: A futuristic representation of {context.topic}\n5. Transcription accuracy check: Compare the original summary with the transcribed text and comment on any discrepancies."
-      result_path: "/app/output/final_report.txt"
+    - name: "generate_image_flux"
+      type: "GenerateImage"
+      prompt: "{steps.create_scenario}"
+      result_path: "/app/output/ai_developments_flux.png"
+      image_params:
+        model_type: "flux"
+        model_id: "black-forest-labs/FLUX.1-schnell"
+        guidance_scale: 0.0
+        num_inference_steps: 4
+        max_sequence_length: 256
+        seed: 0

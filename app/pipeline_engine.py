@@ -28,16 +28,17 @@ logger = logging.getLogger(__name__)
 class LlamaLLM(BaseLLM):
     """Custom LLM class for Llama model."""
 
-    model_name: str = "llama2"
+    model_name: str = Field(default="llama2")
     client: Optional[OllamaClient] = None
     device: str = "cpu"
     
-    def __init__(self, model_name: str = "llama2"):
+    def __init__(self, context: Dict[str, Any]):
         super().__init__()
-        self.model_name = model_name
+        self.model_name = context.get('model_name', 'llama2')
         self.client = self._init_client()
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
+        logger.info(f"Using model: {self.model_name}")
 
     def _init_client(self) -> Optional[OllamaClient]:
         max_retries = 20
@@ -187,7 +188,7 @@ class PipelineEngine:
                 action_input = match.group(2)
                 return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
-        llm = LlamaLLM(model_name="llama2")
+        llm = LlamaLLM(context=self.context)
         llm_chain = LLMChain(llm=llm, prompt=prompt)
 
         tool_names = [tool.name for tool in self.tools]

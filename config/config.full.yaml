@@ -30,7 +30,7 @@ pipeline:
     - name: "text_to_speech"
       type: "TextToSpeech"
       text: "{summarize_findings}"
-      data_path: "output/summary_audio.wav"
+      result_path: "output/summary_audio.wav"
 
     # - name: "speech_to_text"
     #   type: "SpeechToText"
@@ -41,13 +41,27 @@ pipeline:
     #   type: "LoadImageModel"
     #   model_name: "runwayml/stable-diffusion-v1-5"
 
-    - name: "generate_image"
+    - name: "generate_image_sd"
       type: "GenerateImage"
-      prompt: "A futuristic representation of {topic} with latest developments: {summarize_findings}"
-      data_path: "output/ai_developments.png"
+      prompt: "{steps.create_scenario}"
+      result_path: "/app/output/ai_developments_sd.png"
       image_params:
+        model_type: "stable_diffusion"
+        model_id: "runwayml/stable-diffusion-v1-5"
         num_inference_steps: 50
         guidance_scale: 7.5
+
+    - name: "generate_image_flux"
+      type: "GenerateImage"
+      prompt: "A futuristic representation of {context.topic}"
+      result_path: "/app/output/ai_developments_flux.png"
+      image_params:
+        model_type: "flux"
+        model_id: "black-forest-labs/FLUX.1-schnell"
+        guidance_scale: 0.0
+        num_inference_steps: 4
+        max_sequence_length: 256
+        seed: 0
 
     # - name: "call_webhook"
     #   type: "CallWebhook"

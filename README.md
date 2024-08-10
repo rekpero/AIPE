@@ -102,12 +102,12 @@ The AI Agent Pipeline Engine supports the following steps:
         - name: "text_to_speech"
         type: "TextToSpeech"
         text: "{steps.summarize_findings}"
-        data_path: "/app/output/summary_audio.wav"
+        result_path: "/app/output/summary_audio.wav"
 
         - name: "generate_image"
         type: "GenerateImage"
         prompt: "A futuristic representation of {context.topic}"
-        data_path: "/app/output/ai_developments.png"
+        result_path: "/app/output/ai_developments.png"
         image_params:
             num_inference_steps: 50
             guidance_scale: 7.5

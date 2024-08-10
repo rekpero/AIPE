@@ -36,8 +36,8 @@ class TextToSpeechTool(BaseTool):
         if not self.tts_model:
             return "TTS model is not initialized."
         try:
-            self.tts_model.tts_to_file(text=step.text, file_path=step.data_path)
-            return f"Text-to-speech conversion completed. Audio saved to {step.data_path}"
+            self.tts_model.tts_to_file(text=step.text, file_path=step.result_path)
+            return f"Text-to-speech conversion completed. Audio saved to {step.result_path}"
         except Exception as e:
             logger.error(f"Error in text-to-speech conversion: {e}")
             return f"An error occurred during text-to-speech conversion: {str(e)}"
