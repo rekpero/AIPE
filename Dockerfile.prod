@@ -42,6 +42,7 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     libgl1-mesa-glx \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy conda environment from builder
@@ -52,20 +53,15 @@ SHELL ["conda", "run", "-n", "pipeline", "/bin/bash", "-c"]
 # Copy application code
 COPY . /app
 
-# Install Ollama (assuming it's compatible with the base image)
+# Install Ollama
 RUN curl https://ollama.ai/install.sh | sh
 
-# Create a non-root user
-RUN useradd -m appuser
-USER appuser
-
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Make port 8080 available to the world outside this container
+EXPOSE 8080
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/home/appuser/.local/bin:${PATH}"
+    PYTHONDONTWRITEBYTECODE=1
 
 # Run the application
 CMD ["conda", "run", "--no-capture-output", "-n", "pipeline", "python", "main.py"]
