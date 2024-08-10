@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional, Union
 from pydantic import Field # type: ignore
 from diffusers import StableDiffusionPipeline, FluxPipeline # type: ignore
 import torch # type: ignore
+from PIL import Image  # Added this import
 import logging
 import os
 
@@ -34,19 +35,25 @@ class GenerateImageTool(BaseTool):
             elif self.model_type == "flux":
                 self.image_model = FluxPipeline.from_pretrained(
                     self.model_id,
-                    torch_dtype=torch.bfloat16
+                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32
                 )
-                self.image_model.enable_model_cpu_offload()
+                if self.device == "cuda":
+                    self.image_model.to(self.device)
+                else:
+                    self.image_model.enable_model_cpu_offload()
             else:
                 raise ValueError(f"Unsupported model type: {self.model_type}")
             
-            logger.info(f"Model {self.model_id} of type {self.model_type} loaded successfully")
+            logger.info(f"Model {self.model_id} of type {self.model_type} loaded successfully on {self.device}")
         except Exception as e:
             logger.error(f"Failed to load model {self.model_id}: {str(e)}")
             raise
 
+    def clear_gpu_memory(self):
+        if self.device == "cuda":
+            torch.cuda.empty_cache()
+
     def _run(self, step: Step, context: Dict[str, Any]) -> str:
-        """Generate an image from a text prompt."""
         try:
             logger.info(f"Generating image with prompt: {step.prompt}")
             if self.image_model is None:
@@ -66,12 +73,15 @@ class GenerateImageTool(BaseTool):
             elif self.model_type == "flux":
                 image = self.image_model(
                     step.prompt,
-                    guidance_scale=step.image_params.get("guidance_scale", 0.0),
+                    guidance_scale=step.image_params.get("guidance_scale", 4.0),
                     num_inference_steps=step.image_params.get("num_inference_steps", 4),
                     max_sequence_length=step.image_params.get("max_sequence_length", 256),
-                    generator=torch.Generator("cpu").manual_seed(step.image_params.get("seed", 0))
+                    generator=torch.Generator(self.device).manual_seed(step.image_params.get("seed", 0))
                 ).images[0]
             
+            if image is None or not isinstance(image, Image.Image):
+                raise ValueError("Failed to generate image")
+
             logger.info("Image generated successfully")
 
             output_dir = os.path.dirname(step.result_path)
@@ -80,20 +90,14 @@ class GenerateImageTool(BaseTool):
             image.save(step.result_path)
             logger.info("Image saved successfully")
 
+            self.clear_gpu_memory()
+
             return f"Image generated using {self.model_type} and saved to {step.result_path}"
         except Exception as e:
             logger.error(f"Error in GenerateImageTool: {str(e)}")
+            self.clear_gpu_memory()
             return f"Error generating image: {str(e)}"
 
     async def _arun(self, step: Step, context: Dict[str, Any]) -> str:
         """Asynchronous version of _run method."""
         return self._run(step, context)
-
-    def clear_gpu_memory(self) -> None:
-        """Clear GPU memory and unload the model."""
-        if self.image_model is not None:
-            del self.image_model
-            self.image_model = None
-        if self.device == "cuda":
-            torch.cuda.empty_cache()
-        logger.info("GPU memory cleared and model unloaded")

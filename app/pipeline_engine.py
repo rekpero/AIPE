@@ -250,6 +250,8 @@ class PipelineEngine:
         result = await self.agent.arun(pipeline_steps=pipeline_steps, current_context=str(self.context))
         logger.info(f"Pipeline execution result: {result}")
 
+        self.clear_gpu_memory()
+
         for step in self.config.steps:
             try:
                 output = await self.run_step(step)

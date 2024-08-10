@@ -1,19 +1,19 @@
 pipeline:
   context:
-    topic: "Anime waifu with pigtails"
+    topic: "A mysterious figure with a tarnished soul wandering through a moonlit graveyard, surrounded by crumbling headstones and eerie mist, whispers of forgotten secrets lingering in the cool night air."
     num_results: 10
     model_name: "llama3.1"
 
   steps:
-    - name: "create_scenario"
-      type: "RunInference"
-      source: "ollama"
-      model_name: "{context.model_name}"
-      prompt: "Create a hyper realistic scenario for a {context.topic} and make it small descriptive so that it can be used for stable diffusion to create an image. no more than 77 tokens and it should be in single paragraph, no use of markdown or html"
+    # - name: "create_scenario"
+    #   type: "RunInference"
+    #   source: "ollama"
+    #   model_name: "{context.model_name}"
+    #   prompt: "Create a hyper realistic scenario for a {context.topic} and make it small descriptive so that it can be used for stable diffusion to create an image. no more than 77 tokens and it should be in single paragraph, no use of markdown or html"
 
     - name: "generate_image_sd"
       type: "GenerateImage"
-      prompt: "{steps.create_scenario}"
+      prompt: "{context.topic}"
       result_path: "/app/output/ai_developments_sd.png"
       image_params:
         model_type: "stable_diffusion"
@@ -23,12 +23,12 @@ pipeline:
 
     - name: "generate_image_flux"
       type: "GenerateImage"
-      prompt: "{steps.create_scenario}"
+      prompt: "{context.topic}"
       result_path: "/app/output/ai_developments_flux.png"
       image_params:
         model_type: "flux"
         model_id: "black-forest-labs/FLUX.1-schnell"
-        guidance_scale: 0.0
+        guidance_scale: 4.0
         num_inference_steps: 4
         max_sequence_length: 256
-        seed: 0
+        seed: 0 # Consider removing this if you want random results each time
