@@ -140,6 +140,40 @@ docker run -it --gpus all --env-file .env AIPE
 
 The pipeline will save its outputs in the `output` folder inside the docker container. This includes generated files such as audio, images, and text reports as specified in your configuration.
 
+## 🌐 Spheron Deployment
+
+To deploy your AIPE project on Spheron:
+
+1. Update `spheron.yaml` in your project root with your image details.
+
+2. Install `spheronctl` CLI:
+   [Installation Guide](https://docs.spheron.network/user-guide/deploy-your-app#step-1-install-spheron-protocol-sphnctl-cli-linux-macos)
+
+3. Create deployment:
+
+   ```sh
+   sphnctl deployment create spheron.yaml
+   ```
+
+4. Check deployment status (replace `<LID>` with your Deployment ID):
+
+   ```sh
+   sphnctl deployment get --lid <LID>
+   ```
+
+5. View deployment logs:
+
+   ```sh
+   sphnctl deployment logs --lid <LID>
+   ```
+
+6. Access deployment shell:
+   ```sh
+   sphnctl deployment shell aipet /bin/sh --lid <LID> --stdin --tty
+   ```
+
+For more details, see [Spheron Docs](https://docs.spheron.network/user-guide).
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
